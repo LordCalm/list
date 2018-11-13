@@ -10,8 +10,7 @@ typedef struct node {
 item* ConvertToList(int* A, int size)
 {
 	int i = 0;
-	item* B;
-	B = (item*)calloc(size, sizeof(item));
+	item* B = (item*)calloc(size, sizeof(item));
 	if (B == NULL)
 	{
 		printf("No memory\n");
@@ -27,14 +26,43 @@ item* ConvertToList(int* A, int size)
 	}
 	return B;
 }
+void InsertAfter(item* cur, int data)
+{
+	item* el = (item*)calloc(1, sizeof(item));
+	el->data = data;
+	el->next = cur->next;
+	el->prev = cur;
+	cur->next = el;
+	(el->next)->prev = el;
+	return;
+}
+void insertBefore(item* cur, int data)
+{
+	item* el = (item*)calloc(1, sizeof(item));
+	el->data = data;
+	el->next = cur->next;
+	el->prev = cur;
+	cur->next = el;
+	(el->next)->prev = el;
+	return;
+}
+void PrintList(item* A)
+{
+	link cur = A;
+	do
+	{
+		printf("%i\n", cur->data);
+		cur = cur->next;
+	} while (cur != 0);
+}
 int main()
 {
 	int M[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 	int size_M = sizeof(M) / sizeof(*M);
 	item* L = ConvertToList(M, size_M);
-	for (int i = 0; i < 10; i++)
-	{
-		printf("%i\n", (L + i)->data);
-	}
+	InsertAfter(L + 3, 20);
+	insertBefore(L + 7, 100);
+	PrintList(L);
+	system("pause");
 	return 0;
 }
