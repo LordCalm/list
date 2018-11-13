@@ -7,6 +7,27 @@ typedef struct node {
 	link next;
 	link prev;
 }item;
+item* ConvertToList(int* A, int size);
+void PrintList(item* A);
+void InsertAfter(item* cur, int data);
+void insertBefore(item* cur, int data);
+void Delete(item* cur)
+{
+	cur->prev->next = cur->next;
+	cur->next->prev = cur->prev;
+}
+int main()
+{
+	int M[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+	int size_M = sizeof(M) / sizeof(*M);
+	item* L = ConvertToList(M, size_M);
+	InsertAfter(L + 3, 20);
+	insertBefore(L + 7, 100);
+	Delete(L + 1);
+	PrintList(L);
+	system("pause");
+	return 0;
+}
 item* ConvertToList(int* A, int size)
 {
 	int i = 0;
@@ -54,15 +75,4 @@ void PrintList(item* A)
 		printf("%i\n", cur->data);
 		cur = cur->next;
 	} while (cur != 0);
-}
-int main()
-{
-	int M[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-	int size_M = sizeof(M) / sizeof(*M);
-	item* L = ConvertToList(M, size_M);
-	InsertAfter(L + 3, 20);
-	insertBefore(L + 7, 100);
-	PrintList(L);
-	system("pause");
-	return 0;
 }
