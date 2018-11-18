@@ -7,72 +7,84 @@ typedef struct node {
 	link next;
 	link prev;
 }item;
-item* ConvertToList(int* A, int size);
-void PrintList(item* A);
-void InsertAfter(item* cur, int data);
-void insertBefore(item* cur, int data);
-void Delete(item* cur)
+item* ArrayToList(int *Array, int size);
+void PrintList(item *List);
+void InsertAfter(item *List, int number, int data);
+void insertBefore(item *List, int number, int data);
+void Delete(item *List, int number)
 {
+	link cur = List;
+	for (int i = 1; i < number; i++)
+	{
+		cur = cur->next;
+	}
 	cur->prev->next = cur->next;
 	cur->next->prev = cur->prev;
+	free(cur);
 }
 int main()
 {
 	int M[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 	int size_M = sizeof(M) / sizeof(*M);
-	item* L = ConvertToList(M, size_M);
-	InsertAfter(L + 3, 20);
-	insertBefore(L + 7, 100);
-	Delete(L + 1);
+	item* L = ArrayToList(M, size_M);
+	InsertAfter(L, 3, 20);
+	insertBefore(L, 5, 100);
+	Delete(L, 3);
 	PrintList(L);
 	system("pause");
 	return 0;
 }
-item* ConvertToList(int* A, int size)
+item* ArrayToList(int *Array, int size)
 {
-	int i = 0;
-	item* B = (item*)calloc(size, sizeof(item));
-	if (B == NULL)
+	item *cur = (item*)calloc(1, sizeof(item));
+	item *List = cur;
+	for (int i = 0; i < size; i++)
 	{
-		printf("No memory\n");
-		exit(1);
+		cur->data = Array[i];
+		if (i < size - 1)
+		{
+			cur->next = (item*)calloc(1, sizeof(item));
+			cur->next->prev = cur;
+		}
+		else cur->next = NULL;
+		cur = cur->next;
 	}
-	while (i < size) {
-		B[i].data = A[i];
-		if (i == size - 1) (B + i)->next = NULL;
-		else (B + i)->next = B + i + 1;
-		if (i == 0) (B + i)->prev = NULL;
-		else (B + i)->prev = B + i - 1;
-		i++;
-	}
-	return B;
+	return List;
 }
-void InsertAfter(item* cur, int data)
+void InsertAfter(item *List, int number, int data)
 {
-	item* el = (item*)calloc(1, sizeof(item));
+	link cur = List;
+	for (int i = 1; i < number; i++)
+	{
+		cur = cur->next;
+	}
+	item *el = (item*)calloc(1, sizeof(item));
 	el->data = data;
 	el->next = cur->next;
 	el->prev = cur;
 	cur->next = el;
 	(el->next)->prev = el;
-	return;
 }
-void insertBefore(item* cur, int data)
+void insertBefore(item *List, int number, int data)
 {
-	item* el = (item*)calloc(1, sizeof(item));
+	link cur = List;
+	for (int i = 1; i < number; i++)
+	{
+		cur = cur->next;
+	}
+	item *el = (item*)calloc(1, sizeof(item));
 	el->data = data;
-	el->next = cur->next;
-	el->prev = cur;
-	cur->next = el;
-	(el->next)->prev = el;
-	return;
+	el->next = cur;
+	el->prev = cur->prev;
+	cur->prev->next = el;
+	cur->prev = el;
 }
-void PrintList(item* A)
+void PrintList(item *List)
 {
-	link cur = A;
+	link cur = List;
 	do
 	{
 		printf("%i\n", cur->data);
 		cur = cur->next;
-	} while (cur != 0);
+	} while (cur != NULL);
 }
