@@ -7,37 +7,44 @@ typedef struct node {
 	link next;
 	link prev;
 }item;
-item* ArrayToList(int *Array, int size);
-void PrintList(item *List);
-void InsertAfter(item *List, int number, int data);
-void insertBefore(item *List, int number, int data);
-void Delete(item *List, int number)
-{
-	link cur = List;
-	for (int i = 1; i < number; i++)
-	{
-		cur = cur->next;
-	}
-	cur->prev->next = cur->next;
-	cur->next->prev = cur->prev;
-	free(cur);
-}
+typedef struct list {
+	link head;
+	link tail;
+	int size;
+}list;
+list* ArrayToList(int *Array, int size);
+void printInt(int value);
+void PrintList(list *list, void(*fun)(void*));
+void InsertAfter(list *List, int index, int data);
+void insertBefore(list *List, int index, int data);
+void Delete(list **List, int index);
+void DeleteList(list **List);
 int main()
 {
 	int M[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 	int size_M = sizeof(M) / sizeof(*M);
-	item* L = ArrayToList(M, size_M);
+	list *L = ArrayToList(M, size_M);
 	InsertAfter(L, 3, 20);
-	insertBefore(L, 5, 100);
-	Delete(L, 3);
-	PrintList(L);
+	insertBefore(L, 3, 100);
+	Delete(&L, 1);
+	//DeleteList(&L);
+	PrintList(L, printInt);
 	system("pause");
 	return 0;
 }
-item* ArrayToList(int *Array, int size)
+list* CreateList()
+{
+	list *tmp = (list*)malloc(sizeof(list));
+	tmp->size = 0;
+	tmp->head = tmp->tail = NULL;
+	return tmp;
+}
+list* ArrayToList(int *Array, int size)
 {
 	item *cur = (item*)calloc(1, sizeof(item));
-	item *List = cur;
+	list *List = (list*)calloc(1, sizeof(list));
+	List->head = cur;
+	List->size = size;
 	for (int i = 0; i < size; i++)
 	{
 		cur->data = Array[i];
@@ -49,42 +56,80 @@ item* ArrayToList(int *Array, int size)
 		else cur->next = NULL;
 		cur = cur->next;
 	}
+	List->tail = cur;
 	return List;
 }
-void InsertAfter(item *List, int number, int data)
+
+void printInt(int value)
 {
-	link cur = List;
-	for (int i = 1; i < number; i++)
+	printf("%i ", value);
+}
+void PrintList(list *list, void (*fun)(void*))
+{
+	link cur = list->head;
+	while (cur) 
+	{
+		fun(cur->data);
+		cur = cur->next;
+	}
+	printf("\n");
+}
+
+void InsertAfter(list *List, int index, int data)
+{
+	(List->size)++;
+	link cur = List->head;
+	for (int i = 1; i < index; i++)
 	{
 		cur = cur->next;
 	}
-	item *el = (item*)calloc(1, sizeof(item));
+	link el = (item*)calloc(1, sizeof(item));
 	el->data = data;
 	el->next = cur->next;
 	el->prev = cur;
 	cur->next = el;
 	(el->next)->prev = el;
 }
-void insertBefore(item *List, int number, int data)
+void insertBefore(list *List, int index, int data)
 {
-	link cur = List;
-	for (int i = 1; i < number; i++)
+	(List->size)++;
+	link cur = List->head;
+	for (int i = 1; i < index; i++)
 	{
 		cur = cur->next;
 	}
-	item *el = (item*)calloc(1, sizeof(item));
+	link el = (item*)calloc(1, sizeof(item));
 	el->data = data;
 	el->next = cur;
 	el->prev = cur->prev;
 	cur->prev->next = el;
 	cur->prev = el;
 }
-void PrintList(item *List)
+
+void Delete(list **List, int index)
 {
-	link cur = List;
-	do
+	((*List)->size)--;
+	link cur = (*List)->head;
+	int i = 1;
+	while(i < index)
 	{
-		printf("%i\n", cur->data);
 		cur = cur->next;
-	} while (cur != NULL);
+		i++;
+	}
+	if (i != 1) cur->prev->next = cur->next;
+	else (*List)->head = cur->next;
+	if (cur->next != NULL) cur->next->prev = cur->prev;
+	free(cur);
+}
+void DeleteList(list **List)
+{
+	link tmp = (*List)->head;
+	link next = NULL;
+	while (tmp) {
+		next = tmp->next;
+		free(tmp);
+		tmp = next;
+	}
+	free(*List);
+	(*List) = NULL;
 }
