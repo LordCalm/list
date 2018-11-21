@@ -13,21 +13,29 @@ typedef struct list {
 	int size;
 }list;
 list* ArrayToList(int *Array, int size);
+
 void printInt(int value);
 void PrintList(list *list, void(*fun)(void*));
+
 void InsertAfter(list *List, int index, int data);
 void insertBefore(list *List, int index, int data);
+
 void Delete(list **List, int index);
 void DeleteList(list **List);
+
+link FindPtr(list *list, int data);
+link FindIndex(list *list, int data);
+
 int main()
 {
 	int M[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 	int size_M = sizeof(M) / sizeof(*M);
 	list *L = ArrayToList(M, size_M);
-	InsertAfter(L, 3, 20);
+	InsertAfter(L, 0, 20);
 	insertBefore(L, 3, 100);
 	Delete(&L, 1);
 	//DeleteList(&L);
+	printf("%i\n", FindIndex(L, 100));
 	PrintList(L, printInt);
 	system("pause");
 	return 0;
@@ -133,3 +141,25 @@ void DeleteList(list **List)
 	free(*List);
 	(*List) = NULL;
 }
+
+link FindPtr(list *list, int data)
+{
+	link cur = list->head;
+	while (cur->data != data)
+	{
+		cur = cur->next;
+	}
+	return cur;
+}
+link FindIndex(list *list, int data)
+{
+	link cur = list->head;
+	int i = 1;
+	while (cur->data != data)
+	{
+		cur = cur->next;
+		i++;
+	}
+	return i;
+}
+
