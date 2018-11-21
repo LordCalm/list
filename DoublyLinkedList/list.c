@@ -26,6 +26,9 @@ void DeleteList(list **List);
 link FindPtr(list *list, int data);
 link FindIndex(list *list, int data);
 
+void Swap(link **ptr1, link **ptr2);
+void BubbleSort(list **list);
+
 int main()
 {
 	int M[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
@@ -35,7 +38,8 @@ int main()
 	insertBefore(L, 3, 100);
 	Delete(&L, 1);
 	//DeleteList(&L);
-	printf("%i\n", FindIndex(L, 100));
+	//printf("%i\n", FindIndex(L, 100));
+	BubbleSort(&L);
 	PrintList(L, printInt);
 	system("pause");
 	return 0;
@@ -162,4 +166,30 @@ link FindIndex(list *list, int data)
 	}
 	return i;
 }
-
+void Swap(link **ptr1, link **ptr2)
+{
+	link *buf = *ptr1;
+	*ptr1 = *ptr2;
+	*ptr2 = buf;
+}
+void BubbleSort(list **list)
+{
+	link cur = (*list)->head;
+	int check = 1;
+	while (check != 0)
+	{
+		int check1 = 0;
+		while(cur->next != NULL)
+		{
+			if (cur->data > (cur->next)->data)
+			{
+				Swap(cur, cur->next);
+				check1++;
+			}
+			cur = cur->next;
+		}
+		if (check1 == 0) check = 0;
+		cur = (*list)->head;
+	}
+	(*list)->head = cur;
+}
