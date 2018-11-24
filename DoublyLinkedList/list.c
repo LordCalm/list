@@ -1,11 +1,15 @@
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #pragma warning(disable : 4996)
 typedef struct node *link;
 typedef struct node {
+	int can1;
 	int data;
 	link next;
 	link prev;
+	int checksum;
+	int can2;
 }item;
 typedef struct list {
 	link head;
@@ -13,10 +17,12 @@ typedef struct list {
 	int size;
 }list;
 
+const int CAN = 16516;
+
 void MemoryError();
+link CreateNode();
 
 list* CreateList();
-list* ArrayToList(int *Array, int size);
 
 void printInt(int value);
 void PrintList(list *list, void(*fun)(void*));
@@ -24,6 +30,7 @@ void PrintList(list *list, void(*fun)(void*));
 void InsertFiled(int data);
 void InsertAfter(list **List, int index, int data);
 void InsertBefore(list **List, int index, int data);
+list* ArrayToList(int *Array, int size);
 
 void Delete(list **List, int index);
 void DeleteList(list **List);
@@ -38,16 +45,17 @@ int main()
 {
 	int M[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 	int size_M = sizeof(M) / sizeof(*M);
-	list *L = CreateList();
-	//list *L = ArrayToList(M, size_M);
-	InsertAfter(&L, 0, 1);
-	InsertAfter(&L, 1, 20);
-	InsertAfter(&L, 2, 20);
-	InsertBefore(&L, 3, 100);
+	//list *L = CreateList();
+	list *L = ArrayToList(M, size_M);
+	//InsertAfter(&L, 0, 1);
+	//InsertAfter(&L, 1, 20);
+	//InsertAfter(&L, 2, 20);
+	//InsertBefore(&L, 3, 100);
 	//Delete(&L, 1);
 	//DeleteList(&L);
 	//printf("%i\n", FindIndex(L, 100));
 	//BubbleSort(&L);
+	//printf("%i\n", (L->head)->checksum);
 	PrintList(L, printInt);
 	system("pause");
 	return 0;
@@ -58,47 +66,64 @@ void MemoryError()
 	printf("No memory\n");
 	exit(1);
 }
+link CreateNode()
+{
+	link el = (item*)calloc(1, sizeof(item));
+	if (el == NULL) MemoryError();
+	el->can1 = el->can2 = CAN;
+	return el;
+}
+
+size_t Checksum(link el)
+{
+	if (el != NULL)
+	{
+		if (el->next != NULL && el->prev != NULL)
+		{
+			size_t a = (size_t)el->next, b = (size_t)el->prev;
+			return ((a * b) / (a - b)) + 21442;
+		}
+		else if (el->next != NULL)
+		{
+			size_t c = (size_t)el->next;
+			return ((c * c) / (c - 15616)) + 21442;
+		}
+		else if (el->prev != NULL)
+		{
+			size_t d = (size_t)el->prev;
+			return ((d * d) / (d - 15616)) + 21442;
+		}
+	}
+}
+void OK(link el)
+{
+	if (el != NULL)
+	{
+		if ((el->can1 != CAN && el->can2 != CAN) || (Checksum(el) != el->checksum))
+		{
+			printf("Error\n");
+			system("pause");
+			exit(1);
+		}
+	}
+}
 
 list* CreateList()
 {
-	list *tmp = (list*)malloc(sizeof(list));
-	if (tmp == NULL) MemoryError();
+	list *tmp = CreateNode();
 	tmp->size = 0;
 	tmp->head = tmp->tail = NULL;
 	return tmp;
-}
-list* ArrayToList(int *Array, int size)
-{
-	item *cur = (item*)calloc(1, sizeof(item));
-	if (cur == NULL) MemoryError();
-	list *List = (list*)calloc(1, sizeof(list));
-	if (List == NULL) MemoryError();
-	List->head = cur;
-	List->size = size;
-	for (int i = 0; i < size; i++)
-	{
-		cur->data = Array[i];
-		if (i < size - 1)
-		{
-			cur->next = (item*)calloc(1, sizeof(item));
-			if (cur->next == NULL) MemoryError();
-			cur->next->prev = cur;
-		}
-		else cur->next = NULL;
-		cur = cur->next;
-	}
-	List->tail = cur;
-	return List;
 }
 
 void printInt(int value)
 {
 	printf("%i ", value);
 }
-void PrintList(list *list, void (*fun)(void*))
+void PrintList(list *list, void(*fun)(void*))
 {
 	link cur = list->head;
-	while (cur) 
+	while (cur)
 	{
 		fun(cur->data);
 		cur = cur->next;
@@ -124,15 +149,23 @@ void InsertAfter(list **List, int index, int data)
 				link cur = (*List)->head;
 				for (int i = 1; i < index; i++)
 				{
+					//OK(cur);
 					cur = cur->next;
 				}
-				link el = (item*)calloc(1, sizeof(item));
-				if (el == NULL) MemoryError();
+				link el = CreateNode();
 				el->data = data;
 				el->next = cur->next;
 				el->prev = cur;
 				cur->next = el;
-				if (el->next != NULL) (el->next)->prev = el;
+				if (el->next != NULL)
+				{
+					(el->next)->prev = el;
+					//el->next->checksum = Checksum(el->next);
+				}
+				/*
+				el->checksum = Checksum(el);
+				el->prev->checksum = Checksum(el->prev);
+				*/
 			}
 			else InsertFiled(data);
 		}
@@ -141,9 +174,9 @@ void InsertAfter(list **List, int index, int data)
 			if (0 <= index)
 			{
 				((*List)->size)++;
-				link el = (item*)calloc(1, sizeof(item));
-				if (el == NULL) MemoryError();
+				link el = CreateNode();
 				el->data = data;
+				//el->checksum = Checksum(el);
 				(*List)->head = el;
 				(*List)->tail = el;
 			}
@@ -163,8 +196,7 @@ void InsertBefore(list **List, int index, int data)
 			{
 				((*List)->size)++;
 				link cur = (*List)->head;
-				link el = (item*)calloc(1, sizeof(item));
-				if (el == NULL) MemoryError();
+				link el = CreateNode();
 				el->data = data;
 				el->next = cur;
 				cur->prev = el;
@@ -178,8 +210,7 @@ void InsertBefore(list **List, int index, int data)
 				{
 					cur = cur->next;
 				}
-				link el = (item*)calloc(1, sizeof(item));
-				if (el == NULL) MemoryError();
+				link el = CreateNode();
 				el->data = data;
 				el->next = cur;
 				el->prev = cur->prev;
@@ -192,13 +223,31 @@ void InsertBefore(list **List, int index, int data)
 	}
 	else InsertFiled(data);
 }
+list* ArrayToList(int *Array, int size)
+{
+	if (Array != NULL)
+	{
+		list *L = CreateList();
+		for (int i = 0; i < size; i++)
+		{
+			InsertAfter(&L, i, Array[i]);
+		}
+		return L;
+	}
+	else
+	{
+		printf("Array is empty.\n");
+		system("pause");
+		exit(1);
+	}
+}
 
 void Delete(list **List, int index)
 {
 	((*List)->size)--;
 	link cur = (*List)->head;
 	int i = 1;
-	while(i < index)
+	while (i < index)
 	{
 		cur = cur->next;
 		i++;
