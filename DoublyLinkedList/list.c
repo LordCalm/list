@@ -8,7 +8,7 @@ typedef struct node {
 	int data;
 	link next;
 	link prev;
-	int checksum;
+	size_t checksum;
 	int can2;
 }item;
 typedef struct list {
@@ -99,7 +99,7 @@ void OK(link el)
 {
 	if (el != NULL)
 	{
-		if ((el->can1 != CAN && el->can2 != CAN) || (Checksum(el) != el->checksum))
+		if (el->can1 != CAN || el->can2 != CAN || Checksum(el) != el->checksum)
 		{
 			printf("Error\n");
 			system("pause");
@@ -110,9 +110,9 @@ void OK(link el)
 
 list* CreateList()
 {
-	list *tmp = CreateNode();
+	list *tmp = (list*)calloc(1, sizeof(list));
 	tmp->size = 0;
-	tmp->head = tmp->tail = NULL;
+	tmp->head = tmp->tail = CreateNode();
 	return tmp;
 }
 
@@ -143,44 +143,48 @@ void InsertAfter(list **List, int index, int data)
 	{
 		if ((*List)->head != NULL)
 		{
-			if (0 < index && index <= (*List)->size)
+			if ((*List)->head->data != NULL)
 			{
-				((*List)->size)++;
-				link cur = (*List)->head;
-				for (int i = 1; i < index; i++)
+				if (0 < index && index <= (*List)->size)
 				{
-					//OK(cur);
-					cur = cur->next;
+					((*List)->size)++;
+					OK((*List)->head);
+					link cur = (*List)->head;
+					for (int i = 1; i < index; i++)
+					{
+						cur = cur->next;
+					}
+					OK(cur);
+					OK(cur->next);
+					link el = CreateNode();
+					el->data = data;
+					el->next = cur->next;
+					el->prev = cur;
+					cur->next = el;
+					if (el->next != NULL)
+					{
+						(el->next)->prev = el;
+						el->next->checksum = Checksum(el->next);
+					}
+					el->checksum = Checksum(el);
+					el->prev->checksum = Checksum(el->prev);
+					OK(el);
 				}
-				link el = CreateNode();
-				el->data = data;
-				el->next = cur->next;
-				el->prev = cur;
-				cur->next = el;
-				if (el->next != NULL)
-				{
-					(el->next)->prev = el;
-					//el->next->checksum = Checksum(el->next);
-				}
-				/*
-				el->checksum = Checksum(el);
-				el->prev->checksum = Checksum(el->prev);
-				*/
+				else InsertFiled(data);
 			}
-			else InsertFiled(data);
-		}
-		else
-		{
-			if (0 <= index)
+			else
 			{
-				((*List)->size)++;
-				link el = CreateNode();
-				el->data = data;
-				//el->checksum = Checksum(el);
-				(*List)->head = el;
-				(*List)->tail = el;
+				if (0 <= index)
+				{
+					((*List)->size)++;
+					link el = CreateNode();
+					el->data = data;
+					el->checksum = Checksum(el);
+					(*List)->head = el;
+					(*List)->tail = el;
+				}
+				else InsertFiled(data);
 			}
-			else InsertFiled(data);
 		}
 	}
 	else InsertFiled(data);
