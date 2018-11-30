@@ -2,10 +2,11 @@
 #include <string.h>
 #include <stdlib.h>
 #pragma warning(disable : 4996)
+typedef float type;
 typedef struct node *link;
 typedef struct node {
 	int can1;
-	int data;
+	type data;
 	link next;
 	link prev;
 	size_t checksum;
@@ -18,45 +19,49 @@ typedef struct list {
 }list;
 
 const int CAN = 16516;
+void ListOK(list *L);
+size_t Checksum(link el);
+void OK(link el);
 
 void MemoryError();
 link CreateNode();
 
 list* CreateList();
 
-void printInt(int value);
-void PrintList(list *list, void(*fun)(void*));
+void printFloat(link cur);
+void printInt(link cur);
+void PrintList(list *list, void(*fun)(link));
 
-void InsertFiled(int data);
-void InsertAfter(list **List, int index, int data);
-void InsertBefore(list **List, int index, int data);
-list* ArrayToList(int *Array, int size);
+void InsertFiled(type data);
+void InsertAfter(list **List, int index, type data);
+void InsertBefore(list **List, int index, type data);
+list* ArrayToList(type *Array, int size);
 
 void Delete(list **List, int index);
 void DeleteList(list **List);
 
-link FindPtr(list *list, int data);
-link FindIndex(list *list, int data);
+link FindPtr(list *list, type data);
+link FindIndex(list *list, type data);
 
 void Swap(link **ptr1, link **ptr2);
 void BubbleSort(list **list);
 
 int main()
 {
-	int M[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+	float M[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 	int size_M = sizeof(M) / sizeof(*M);
 	//list *L = CreateList();
 	list *L = ArrayToList(M, size_M);
-	//InsertAfter(&L, 0, 1);
-	//InsertAfter(&L, 1, 20);
-	//InsertAfter(&L, 2, 20);
-	//InsertBefore(&L, 3, 100);
-	//Delete(&L, 1);
+	InsertAfter(&L, 1, 1);
+	InsertAfter(&L, 1, 20);
+	InsertAfter(&L, 2, 20);
+	InsertBefore(&L, 1, 100);
+	Delete(&L, 1);
 	//DeleteList(&L);
 	//printf("%i\n", FindIndex(L, 100));
-	//BubbleSort(&L);
+	BubbleSort(&L);
 	//printf("%i\n", (L->head)->checksum);
-	PrintList(L, printInt);
+	PrintList(L, printFloat);
 	system("pause");
 	return 0;
 }
@@ -73,7 +78,15 @@ link CreateNode()
 	el->can1 = el->can2 = CAN;
 	return el;
 }
-
+void ListOK(list *L)
+{
+	if (L != NULL)
+		if (L->head != NULL && L->tail != NULL)
+			return;
+	printf("List not found.\n");
+	system("pause");
+	exit(1);
+}
 size_t Checksum(link el)
 {
 	if (el != NULL)
@@ -81,19 +94,20 @@ size_t Checksum(link el)
 		if (el->next != NULL && el->prev != NULL)
 		{
 			size_t a = (size_t)el->next, b = (size_t)el->prev;
-			return ((a * b) / (a - b)) + 21442;
+			return ((a * b) / (a + b)) + 21442;
 		}
 		else if (el->next != NULL)
 		{
 			size_t c = (size_t)el->next;
-			return ((c * c) / (c - 15616)) + 21442;
+			return ((c * c) / (c + 15616)) + 21442;
 		}
 		else if (el->prev != NULL)
 		{
 			size_t d = (size_t)el->prev;
-			return ((d * d) / (d - 15616)) + 21442;
+			return ((d * d) / (d + 15616)) + 21442;
 		}
 	}
+	return;
 }
 void OK(link el)
 {
@@ -106,6 +120,7 @@ void OK(link el)
 			exit(1);
 		}
 	}
+	return;
 }
 
 list* CreateList()
@@ -116,118 +131,124 @@ list* CreateList()
 	return tmp;
 }
 
-void printInt(int value)
+void printFloat(link cur)
 {
-	printf("%i ", value);
+	printf("%f ", cur->data);
 }
-void PrintList(list *list, void(*fun)(void*))
+void printInt(link cur)
+{
+	printf("%i ", cur->data);
+}
+void PrintList(list *list, void(*fun)(link))
 {
 	link cur = list->head;
 	while (cur)
 	{
-		fun(cur->data);
+		OK(cur);
+		fun(cur);
 		cur = cur->next;
 	}
 	printf("\n");
 }
 
-void InsertFiled(int data)
+void InsertFiled(type data)
 {
 	printf("%i is not inserted.\n", data);
 	system("pause");
 	exit(1);
 }
-void InsertAfter(list **List, int index, int data)
+void InsertAfter(list **List, int index, type data)
 {
-	if (data)
+	ListOK(*List);
+	if((*List)->head->data)
 	{
-		if ((*List)->head != NULL)
+		if (0 < index && index <= (*List)->size)
 		{
-			if ((*List)->head->data != NULL)
+			((*List)->size)++;
+			OK((*List)->head);
+			link cur = (*List)->head;
+			for (int i = 1; i < index; i++)
 			{
-				if (0 < index && index <= (*List)->size)
-				{
-					((*List)->size)++;
-					OK((*List)->head);
-					link cur = (*List)->head;
-					for (int i = 1; i < index; i++)
-					{
-						cur = cur->next;
-					}
-					OK(cur);
-					OK(cur->next);
-					link el = CreateNode();
-					el->data = data;
-					el->next = cur->next;
-					el->prev = cur;
-					cur->next = el;
-					if (el->next != NULL)
-					{
-						(el->next)->prev = el;
-						el->next->checksum = Checksum(el->next);
-					}
-					el->checksum = Checksum(el);
-					el->prev->checksum = Checksum(el->prev);
-					OK(el);
-				}
-				else InsertFiled(data);
+				cur = cur->next;
 			}
-			else
+			OK(cur);
+			OK(cur->next);
+			link el = CreateNode();
+			el->data = data;
+			el->next = cur->next;
+			el->prev = cur;
+			cur->next = el;
+			if (el->next != NULL)
 			{
-				if (0 <= index)
-				{
-					((*List)->size)++;
-					link el = CreateNode();
-					el->data = data;
-					el->checksum = Checksum(el);
-					(*List)->head = el;
-					(*List)->tail = el;
-				}
-				else InsertFiled(data);
+				(el->next)->prev = el;
+				el->next->checksum = Checksum(el->next);
 			}
+			el->checksum = Checksum(el);
+			el->prev->checksum = Checksum(el->prev);
+			OK(el);
+			return;
 		}
 	}
-	else InsertFiled(data);
+	else
+	{
+		if (0 <= index)
+		{
+			((*List)->size)++;
+			link el = CreateNode();
+			el->data = data;
+			el->checksum = Checksum(el);
+			(*List)->head = el;
+			(*List)->tail = el;
+			return;
+		}
+	}
+	InsertFiled(data);
 
 }
-void InsertBefore(list **List, int index, int data)
+void InsertBefore(list **List, int index, type data)
 {
-	if (data)
+	ListOK(*List);
+	if (index == 1)
 	{
-		if ((*List)->head != NULL)
-		{
-			if (index == 1)
-			{
-				((*List)->size)++;
-				link cur = (*List)->head;
-				link el = CreateNode();
-				el->data = data;
-				el->next = cur;
-				cur->prev = el;
-				(*List)->head = el;
-			}
-			else if (1 < index && index <= (*List)->size)
-			{
-				((*List)->size)++;
-				link cur = (*List)->head;
-				for (int i = 1; i < index; i++)
-				{
-					cur = cur->next;
-				}
-				link el = CreateNode();
-				el->data = data;
-				el->next = cur;
-				el->prev = cur->prev;
-				cur->prev->next = el;
-				cur->prev = el;
-			}
-			else InsertFiled(data);
-		}
-		else InsertFiled(data);
+		((*List)->size)++;
+		OK((*List)->head);
+		link cur = (*List)->head;
+		link el = CreateNode();
+		el->data = data;
+		el->next = cur;
+		cur->prev = el;
+		(*List)->head = el;
+		cur->checksum = Checksum(cur);
+		el->checksum = Checksum(el);
+		OK(el);
+		return;
 	}
-	else InsertFiled(data);
+	else if (1 < index && index <= (*List)->size)
+	{
+		((*List)->size)++;
+		OK((*List)->head);
+		link cur = (*List)->head;
+		for (int i = 1; i < index; i++)
+		{
+			cur = cur->next;
+		}
+		OK(cur);
+		OK(cur->prev);
+		link el = CreateNode();
+		el->data = data;
+		el->next = cur;
+		el->prev = cur->prev;
+		cur->prev->next = el;
+		cur->prev = el;
+		cur->checksum = Checksum(cur);
+		cur->prev->checksum = Checksum(cur->prev);
+		el->checksum = Checksum(el);
+		OK(el);
+		return;
+	}
+	InsertFiled(data);
 }
-list* ArrayToList(int *Array, int size)
+list* ArrayToList(type *Array, int size)
 {
 	if (Array != NULL)
 	{
@@ -248,33 +269,62 @@ list* ArrayToList(int *Array, int size)
 
 void Delete(list **List, int index)
 {
-	((*List)->size)--;
-	link cur = (*List)->head;
-	int i = 1;
-	while (i < index)
+	ListOK(*List);
+	if (0 < index && index <= (*List)->size)
 	{
-		cur = cur->next;
-		i++;
+		((*List)->size)--;
+		OK((*List)->head);
+		link cur = (*List)->head;
+		int i = 1;
+		while (i < index)
+		{
+			cur = cur->next;
+			i++;
+		}
+		OK(cur);
+		if (index != 1)
+		{
+			OK(cur->prev);
+			if (cur->next != NULL) cur->prev->next = cur->next;
+			cur->prev->checksum = Checksum(cur->prev);
+		}
+		else
+		{
+			OK(cur->next);
+			(*List)->head = cur->next;
+			(*List)->head->checksum = Checksum((*List)->head);
+			if (cur->next != NULL)
+			{
+				cur->next->prev = cur->prev;
+				cur->next->checksum = Checksum(cur->next);
+			}
+		}
+		cur->next = cur->prev = NULL;
+		free(cur);
+		return;
 	}
-	if (i != 1) cur->prev->next = cur->next;
-	else (*List)->head = cur->next;
-	if (cur->next != NULL) cur->next->prev = cur->prev;
-	free(cur);
+	printf("%i is not deleted.\n", index);
+	system("pause");
+	exit(1);
 }
 void DeleteList(list **List)
 {
-	link tmp = (*List)->head;
-	link next = NULL;
-	while (tmp) {
-		next = tmp->next;
-		free(tmp);
-		tmp = next;
+	if ((*List)->head != NULL)
+	{
+		link tmp = (*List)->head;
+		link next = NULL;
+		while (tmp) {
+			next = tmp->next;
+			tmp->next = tmp->prev = NULL;
+			free(tmp);
+			tmp = next;
+		}
+		free(*List);
+		(*List) = NULL;
 	}
-	free(*List);
-	(*List) = NULL;
 }
 
-link FindPtr(list *list, int data)
+link FindPtr(list *list, type data)
 {
 	link cur = list->head;
 	while (cur->data != data)
@@ -283,7 +333,7 @@ link FindPtr(list *list, int data)
 	}
 	return cur;
 }
-link FindIndex(list *list, int data)
+link FindIndex(list *list, type data)
 {
 	link cur = list->head;
 	int i = 1;
