@@ -248,7 +248,7 @@ void Delete(list **List, int index)
 			}
 		}
 		cur->next = cur->prev = NULL;
-		free(cur);
+		delete cur;
 		return;
 	}
 	cout << index << " is not deleted.\n";
@@ -263,10 +263,10 @@ void DeleteList(list **List)
 		while (tmp) {
 			next = tmp->next;
 			tmp->next = tmp->prev = NULL;
-			free(tmp);
+			delete tmp;
 			tmp = next;
 		}
-		free(*List);
+		delete *List;
 		(*List) = NULL;
 	}
 }
