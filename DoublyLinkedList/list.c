@@ -5,7 +5,7 @@
 #pragma warning(disable : 4996)
 int main()
 {
-	float M[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+	int M[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 	int size_M = sizeof(M) / sizeof(*M);
 	//list *L = CreateList();
 	list *L = ArrayToList(M, size_M);

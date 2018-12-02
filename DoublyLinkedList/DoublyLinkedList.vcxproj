@@ -119,7 +119,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="DoublyLinkedList.cpp" />
     <ClCompile Include="list.c" />
   </ItemGroup>
   <ItemGroup>
