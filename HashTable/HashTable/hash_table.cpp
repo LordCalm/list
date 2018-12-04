@@ -6,8 +6,9 @@ using namespace std;
 const int table_size = 597;
 typedef struct hash_table
 {
-	hash_table()
+	hash_table(size_t(*hash_funk)(char*))
 	{
+		hash_f = hash_funk;
 		for (int i = 0; i < table_size; i++)
 		{
 			hashed[i] = CreateList();
@@ -18,14 +19,18 @@ typedef struct hash_table
 	void Register(char* data)
 	{
 		int x = hash_f(data) % table_size;
-		InsertAfter(&(hashed[x]), 1, data);
+		InsertAfter(hashed[x], 1, data);
 		cout << data << "\n";
+	}
+	void Remove(char* data)
+	{
+		int x = hash_f(data) % table_size;
+		Delete(hashed[x], FindIndex(hashed[x], data));
 	}
 	void DumpToFile(const char *file)
 	{
 		ofstream f;
 		f.open(file, ios::out);
-		f << "Distribution:\n";
 		for (int i = 0; i < table_size; i++)
 		{
 			f << (int)hashed[i]->size << "\n";
@@ -36,18 +41,47 @@ typedef struct hash_table
 	{
 		for (int i = 0; i < table_size; i++)
 		{
-			DeleteList(&hashed[i]);
+			DeleteList(hashed[i]);
 		}
 	}
 }hash_table;
-size_t h1(char* data)
+size_t h1(char *data)
 {
-	return data[5];
+
+	unsigned int hash = 2139062143;
+
+	for (; *data; data++)
+		hash = 37 * hash + *data;
+
+	return hash;
+
+}
+size_t h2(char *data)
+{
+	int i = 0;
+	int x = 10;
+	while (data[i])
+	{
+		 x += data[i];
+		 i++;
+	}
+	return x * x * x * 5195152;
+}
+size_t h3(char *data)
+{
+	unsigned int seed = 131313;
+	unsigned int hash = 0;
+	unsigned int i = 0;
+
+	for (i = 0; i < 11; data++, i++)
+	{
+		hash = (hash * seed) + *data + i;
+	}
+	return hash;
 }
 int main()
 {
-	hash_table table = {};
-	table.hash_f = h1;
+	hash_table table(h3);
 	char data[1000][128];
 	unsigned long long r;
 	for (int i = 0; i < 1000; i++)
