@@ -1,22 +1,61 @@
 #include <iostream>
+#include <fstream>
 #include "List_cpp.h"
+#include "Random_cpp.h"
 using namespace std;
-
+const int table_size = 597;
+typedef struct hash_table
+{
+	hash_table()
+	{
+		for (int i = 0; i < table_size; i++)
+		{
+			hashed[i] = CreateList();
+		}
+	}
+	list *hashed[table_size];
+	size_t(*hash_f)(char*);
+	void Register(char* data)
+	{
+		int x = hash_f(data) % table_size;
+		InsertAfter(&(hashed[x]), 1, data);
+		cout << data << "\n";
+	}
+	void DumpToFile(const char *file)
+	{
+		ofstream f;
+		f.open(file, ios::out);
+		f << "Distribution:\n";
+		for (int i = 0; i < table_size; i++)
+		{
+			f << (int)hashed[i]->size << "\n";
+		}
+		f.close();
+	}
+	~hash_table()
+	{
+		for (int i = 0; i < table_size; i++)
+		{
+			DeleteList(&hashed[i]);
+		}
+	}
+}hash_table;
+size_t h1(char* data)
+{
+	return data[5];
+}
 int main()
 {
-	int M[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-	int size_M = sizeof(M) / sizeof(*M);
-	//list *L = CreateList();
-	list *L = ArrayToList(M, size_M);
-	InsertAfter(&L, 1, 1);
-	InsertAfter(&L, 1, 20);
-	InsertAfter(&L, 2, 20);
-	InsertBefore(&L, 1, 100);
-	Delete(&L, 1);
-	//DeleteList(&L);
-	//printf("%i\n", FindIndex(L, 100));
-	BubbleSort(&L);
-	//printf("%i\n", (L->head)->checksum);
-	PrintList(L, printInt);
+	hash_table table = {};
+	table.hash_f = h1;
+	char data[1000][128];
+	unsigned long long r;
+	for (int i = 0; i < 1000; i++)
+	{
+		r = Random(89000000000, 89999999999);
+		sprintf(data[i], "%llu", r);
+		table.Register(data[i]);
+	}
+	table.DumpToFile("result.txt");
 	return 0;
 }

@@ -3,7 +3,7 @@
 using namespace std;
 
 const int CAN = 16516;
-typedef int type;
+typedef char* type;
 typedef struct node *link;
 typedef struct node {
 	int can1;
@@ -80,7 +80,7 @@ list* CreateList()
 	tmp->head = tmp->tail = CreateNode();
 	return tmp;
 }
-
+/*
 void printFloat(link cur)
 {
 	cout << (float)cur->data;
@@ -100,7 +100,7 @@ void PrintList(list *list, void(*fun)(link))
 	}
 	cout << "\n";
 }
-
+*/
 void InsertFiled(type data)
 {
 	cout << data << " is not inserted.\n";
@@ -248,7 +248,7 @@ void Delete(list **List, int index)
 			}
 		}
 		cur->next = cur->prev = NULL;
-		delete cur;
+		free(cur);
 		return;
 	}
 	cout << index << " is not deleted.\n";
@@ -263,10 +263,10 @@ void DeleteList(list **List)
 		while (tmp) {
 			next = tmp->next;
 			tmp->next = tmp->prev = NULL;
-			delete tmp;
+			free(tmp);
 			tmp = next;
 		}
-		delete *List;
+		free(*List);
 		(*List) = NULL;
 	}
 }
