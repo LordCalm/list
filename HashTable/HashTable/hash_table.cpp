@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
-#include "List_cpp.h"
+//#include "List_cpp.h"
+#include "DoublyLinkedList.h"
 #include "Random_cpp.h"
 using namespace std;
 const int table_size = 597;
@@ -11,7 +12,7 @@ typedef struct hash_table
 		hash_f = hash_funk;
 		for (int i = 0; i < table_size; i++)
 		{
-			hashed[i] = CreateList();
+			hashed[i] = new list;
 		}
 	}
 	list *hashed[table_size];
@@ -19,13 +20,14 @@ typedef struct hash_table
 	void Register(char* data)
 	{
 		int x = hash_f(data) % table_size;
-		InsertAfter(hashed[x], 1, data);
+		//InsertAfter(hashed[x], 1, data);
+		hashed[x]->InsertAfter(1, data);
 		cout << data << "\n";
 	}
 	void Remove(char* data)
 	{
 		int x = hash_f(data) % table_size;
-		Delete(hashed[x], FindIndex(hashed[x], data));
+		//Delete(hashed[x], FindIndex(hashed[x], data));
 	}
 	void DumpToFile(const char *file)
 	{
@@ -33,7 +35,7 @@ typedef struct hash_table
 		f.open(file, ios::out);
 		for (int i = 0; i < table_size; i++)
 		{
-			f << (int)hashed[i]->size << "\n";
+			f << (int)hashed[i]->_size << "\n";
 		}
 		f.close();
 	}
@@ -41,7 +43,7 @@ typedef struct hash_table
 	{
 		for (int i = 0; i < table_size; i++)
 		{
-			DeleteList(hashed[i]);
+			delete hashed[i];
 		}
 	}
 }hash_table;
@@ -83,7 +85,7 @@ int main()
 {
 	hash_table table(h3);
 	char data[1000][128];
-	unsigned long long r;
+	unsigned long long r = 0;
 	for (int i = 0; i < 1000; i++)
 	{
 		r = Random(89000000000, 89999999999);

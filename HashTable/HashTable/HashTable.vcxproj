@@ -121,6 +121,7 @@
     <ClCompile Include="hash_table.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DoublyLinkedList.h" />
     <ClInclude Include="List_cpp.h" />
     <ClInclude Include="Random_cpp.h" />
   </ItemGroup>

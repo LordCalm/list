@@ -26,5 +26,8 @@
     <ClInclude Include="Random_cpp.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="DoublyLinkedList.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
