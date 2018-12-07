@@ -1,95 +1,26 @@
 #include <iostream>
 #include <fstream>
-#include "DoublyLinkedList.h"
-#include "Random_cpp.h"
+#include "HashTable.h"
 using namespace std;
-const int table_size = 597;
-typedef struct hash_table
+
+void hash_table::Register(char* data)
 {
-	hash_table(size_t(*hash_funk)(char*)):
-	hash_f(hash_funk)
-	{
-		for (int i = 0; i < table_size; i++)
-		{
-			hashed[i] = new list;
-		}
-	}
-	list *hashed[table_size];
-	size_t(*hash_f)(char*);
-	void Register(char* data)
-	{
-		int x = hash_f(data) % table_size;
-		hashed[x]->InsertAfter(1, data);
-		cout << data << "\n";
-	}
-	void Remove(char* data)
-	{
-		int x = hash_f(data) % table_size;
-		hashed[x]->Delete(hashed[x]->FindIndex(data));
-	}
-	void DumpToFile(const char *file)
-	{
-		ofstream f;
-		f.open(file, ios::out);
-		for (int i = 0; i < table_size; i++)
-		{
-			f << (int)hashed[i]->_size << "\n";
-		}
-		f.close();
-	}
-	~hash_table()
-	{
-		for (int i = 0; i < table_size; i++)
-		{
-			delete hashed[i];
-		}
-	}
-}hash_table;
-size_t h1(char *data)
-{
-
-	unsigned int hash = 2139062143;
-
-	for (; *data; data++)
-		hash = 37 * hash + *data;
-
-	return hash;
-
+	int x = hash_f(data) % table_size;
+	hashed[x]->InsertAfter(1, data);
+	cout << data << "\n";
 }
-size_t h2(char *data)
+void hash_table::Remove(char* data)
 {
-	int i = 0;
-	int x = 10;
-	while (data[i])
-	{
-		 x += data[i];
-		 i++;
-	}
-	return x * x * x * 5195152;
+	int x = hash_f(data) % table_size;
+	hashed[x]->Delete(hashed[x]->FindIndex(data));
 }
-size_t h3(char *data)
+void hash_table::DumpToFile(const char *file)
 {
-	unsigned int seed = 131313;
-	unsigned int hash = 0;
-	unsigned int i = 0;
-
-	for (i = 0; i < 11; data++, i++)
+	ofstream f;
+	f.open(file, ios::out);
+	for (int i = 0; i < table_size; i++)
 	{
-		hash = (hash * seed) + *data + i;
+		f << (int)hashed[i]->_size << "\n";
 	}
-	return hash;
-}
-int main()
-{
-	hash_table table(h3);
-	char data[1000][128];
-	unsigned long long r = 0;
-	for (int i = 0; i < 1000; i++)
-	{
-		r = Random(89000000000, 89999999999);
-		sprintf(data[i], "%llu", r);
-		table.Register(data[i]);
-	}
-	table.DumpToFile("result.txt");
-	return 0;
+	f.close();
 }
