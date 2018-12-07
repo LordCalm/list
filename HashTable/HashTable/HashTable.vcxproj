@@ -122,7 +122,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DoublyLinkedList.h" />
-    <ClInclude Include="List_cpp.h" />
     <ClInclude Include="Random_cpp.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

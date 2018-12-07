@@ -1,15 +1,14 @@
 #include <iostream>
 #include <fstream>
-//#include "List_cpp.h"
 #include "DoublyLinkedList.h"
 #include "Random_cpp.h"
 using namespace std;
 const int table_size = 597;
 typedef struct hash_table
 {
-	hash_table(size_t(*hash_funk)(char*))
+	hash_table(size_t(*hash_funk)(char*)):
+	hash_f(hash_funk)
 	{
-		hash_f = hash_funk;
 		for (int i = 0; i < table_size; i++)
 		{
 			hashed[i] = new list;
@@ -20,14 +19,13 @@ typedef struct hash_table
 	void Register(char* data)
 	{
 		int x = hash_f(data) % table_size;
-		//InsertAfter(hashed[x], 1, data);
 		hashed[x]->InsertAfter(1, data);
 		cout << data << "\n";
 	}
 	void Remove(char* data)
 	{
 		int x = hash_f(data) % table_size;
-		//Delete(hashed[x], FindIndex(hashed[x], data));
+		hashed[x]->Delete(hashed[x]->FindIndex(data));
 	}
 	void DumpToFile(const char *file)
 	{
