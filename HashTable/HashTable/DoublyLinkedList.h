@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#define FAST_LIST
 using namespace std;
 
 const int CAN = 16516;
@@ -7,17 +8,23 @@ typedef char* type;
 
 typedef struct node *link;
 typedef struct node {
+	#ifndef FAST_LIST
 	int _can1;
+	#endif
 	type _data;
 	link _next;
 	link _prev;
+	#ifndef FAST_LIST
 	size_t _checksum;
 	int _can2;
+	#endif
 	node(type data = 0):
 	_data(data)
 	{ 
 		_next = _prev = NULL;
+		#ifndef FAST_LIST
 		_can1 = _can2 = CAN;
+		#endif
 	}
 	size_t Checksum();
 	void OK();

@@ -4,6 +4,7 @@ using namespace std;
 
 size_t node::Checksum()
 {
+	#ifndef FAST_LIST
 	if (_next != NULL && _prev != NULL)
 	{
 		size_t a = (size_t)_next, b = (size_t)_prev;
@@ -19,15 +20,18 @@ size_t node::Checksum()
 		size_t d = (size_t)_prev;
 		return ((d * d) / (d + 15616)) + 21442;
 	}
+	#endif
 	return 0;
 }
 void node::OK()
 {
+	#ifndef FAST_LIST
 	if (_can1 != CAN || _can2 != CAN || Checksum() != _checksum)
 	{
 		cout << "Error\n";
 		exit(1);
 	}
+	#endif
 	return;
 }
 
@@ -73,10 +77,14 @@ void list::InsertAfter(int index, type data)
 			if (el->_next != NULL)
 			{
 				(el->_next)->_prev = el;
+				#ifndef FAST_LIST
 				el->_next->_checksum = el->_next->Checksum();
+				#endif
 			}
+			#ifndef FAST_LIST
 			el->_checksum = el->Checksum();
 			el->_prev->_checksum = el->_prev->Checksum();
+			#endif
 			if (el != NULL) el->OK();
 			return;
 		}
@@ -87,7 +95,9 @@ void list::InsertAfter(int index, type data)
 		{
 			(_size)++;
 			link el = new node(data);
+			#ifndef FAST_LIST
 			el->_checksum = el->Checksum();
+			#endif
 			_head = el;
 			_tail = el;
 			return;
@@ -108,8 +118,10 @@ void list::InsertBefore(int index, type data)
 		el->_next = cur;
 		cur->_prev = el;
 		_head = el;
+		#ifndef FAST_LIST
 		cur->_checksum = cur->Checksum();
 		el->_checksum = el->Checksum();
+		#endif
 		if (el != NULL) el->OK();
 		return;
 	}
@@ -129,9 +141,11 @@ void list::InsertBefore(int index, type data)
 		el->_prev = cur->_prev;
 		cur->_prev->_next = el;
 		cur->_prev = el;
+		#ifndef FAST_LIST
 		cur->_checksum = cur->Checksum();
 		cur->_prev->_checksum = cur->_prev->Checksum();
 		el->_checksum = el->Checksum();
+		#endif
 		if (el != NULL) el->OK();
 		return;
 	}
@@ -172,17 +186,23 @@ void list::Delete(int index)
 		{
 			if (cur->_prev != NULL) (cur->_prev)->OK();
 			if (cur->_next != NULL) cur->_prev->_next = cur->_next;
+			#ifndef FAST_LIST
 			cur->_prev->_checksum = cur->_prev->Checksum();
+			#endif
 		}
 		else
 		{
 			if (cur->_next != NULL) (cur->_next)->OK();
 			_head = cur->_next;
+			#ifndef FAST_LIST
 			_head->_checksum = _head->Checksum();
+			#endif
 			if (cur->_next != NULL)
 			{
 				cur->_next->_prev = cur->_prev;
+				#ifndef FAST_LIST
 				cur->_next->_checksum = cur->_next->Checksum();
+				#endif
 			}
 		}
 		delete cur;
