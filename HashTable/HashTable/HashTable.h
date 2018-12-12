@@ -6,10 +6,10 @@ using namespace std;
 const int table_size = 597;
 typedef class hash_table
 {
-private:
+public:
 	list *hashed[table_size];
 	size_t(*hash_f)(char*);
-public:
+//public:
 	hash_table(size_t(*hash_funk)(char*)) :
 		hash_f(hash_funk)
 	{

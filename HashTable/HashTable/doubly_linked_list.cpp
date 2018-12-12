@@ -1,6 +1,10 @@
 #include <iostream>
+#include <Windows.h>
 #include "DoublyLinkedList.h"
+#pragma warning(disable:4996)
 using namespace std;
+
+//const int size_string = 128;
 
 size_t node::Checksum()
 {
@@ -49,7 +53,7 @@ void list::PrintList()
 	while (cur)
 	{
 		if (cur != NULL) cur->OK();
-		cout << cur;
+		cout << cur->_data << " ";
 		cur = cur->_next;
 	}
 	cout << "\n";
@@ -70,6 +74,15 @@ void list::InsertAfter(int index, type data)
 			}
 			if (cur != NULL) cur->OK();
 			if (cur->_next != NULL) (cur->_next)->OK();
+			/*
+			#ifdef LIST_OF_STRINGS
+			link el = new node(NULL);
+			el->_data = new char[size_string];
+			snprintf(el->_data, strlen(data) + sizeof("\0"), data);
+			#else
+			link el = new node(data);
+			#endif
+			*/
 			link el = new node(data);
 			el->_next = cur->_next;
 			el->_prev = cur;
@@ -77,14 +90,17 @@ void list::InsertAfter(int index, type data)
 			if (el->_next != NULL)
 			{
 				(el->_next)->_prev = el;
+
 				#ifndef FAST_LIST
 				el->_next->_checksum = el->_next->Checksum();
 				#endif
 			}
+
 			#ifndef FAST_LIST
 			el->_checksum = el->Checksum();
 			el->_prev->_checksum = el->_prev->Checksum();
 			#endif
+
 			if (el != NULL) el->OK();
 			return;
 		}
@@ -93,11 +109,14 @@ void list::InsertAfter(int index, type data)
 	{
 		if (0 <= index)
 		{
-			(_size)++;
+			_size++;
 			link el = new node(data);
+			el->_data = data;
+
 			#ifndef FAST_LIST
 			el->_checksum = el->Checksum();
 			#endif
+
 			_head = el;
 			_tail = el;
 			return;
@@ -115,13 +134,16 @@ void list::InsertBefore(int index, type data)
 		if (_head != NULL) _head->OK();
 		link cur = _head;
 		link el = new node(data);
+		el->_data = data;
 		el->_next = cur;
 		cur->_prev = el;
 		_head = el;
+
 		#ifndef FAST_LIST
 		cur->_checksum = cur->Checksum();
 		el->_checksum = el->Checksum();
 		#endif
+
 		if (el != NULL) el->OK();
 		return;
 	}
@@ -137,15 +159,18 @@ void list::InsertBefore(int index, type data)
 		if (cur != NULL) cur->OK();
 		if (cur->_prev != NULL) (cur->_prev)->OK();
 		link el = new node(data);
+		el->_data = data;
 		el->_next = cur;
 		el->_prev = cur->_prev;
 		cur->_prev->_next = el;
 		cur->_prev = el;
+
 		#ifndef FAST_LIST
 		cur->_checksum = cur->Checksum();
 		cur->_prev->_checksum = cur->_prev->Checksum();
 		el->_checksum = el->Checksum();
 		#endif
+
 		if (el != NULL) el->OK();
 		return;
 	}
@@ -186,6 +211,7 @@ void list::Delete(int index)
 		{
 			if (cur->_prev != NULL) (cur->_prev)->OK();
 			if (cur->_next != NULL) cur->_prev->_next = cur->_next;
+
 			#ifndef FAST_LIST
 			cur->_prev->_checksum = cur->_prev->Checksum();
 			#endif
@@ -194,12 +220,15 @@ void list::Delete(int index)
 		{
 			if (cur->_next != NULL) (cur->_next)->OK();
 			_head = cur->_next;
+
 			#ifndef FAST_LIST
 			_head->_checksum = _head->Checksum();
 			#endif
+
 			if (cur->_next != NULL)
 			{
 				cur->_next->_prev = cur->_prev;
+
 				#ifndef FAST_LIST
 				cur->_next->_checksum = cur->_next->Checksum();
 				#endif
@@ -210,6 +239,36 @@ void list::Delete(int index)
 	}
 	cout << index << " is not deleted.\n";
 	exit(1);
+}
+int strcmpare(char *str1, char *str2)
+{
+	int i = 0;
+	while (*(str1 + i) != NULL || *(str2 + i) != NULL)
+	{
+		if (*(str1 + i) != *(str2 + i)) return 0;
+		i++;
+	}
+	if (*(str1 + i) == NULL && *(str2 + i) == NULL)
+		return 1;
+	else
+		return 0;
+}
+int list::FindString(type data)
+{
+	link cur = _head;
+	int i = 1;
+	while (cur != NULL)
+	{
+		if (cur->_data == NULL)
+			return 0;
+		if (strcmpare(data, cur->_data) != 0)
+		{
+			return i;
+		}
+		cur = cur->_next;
+		i++;
+	}
+	return 0;
 }
 link list::FindPtr(type data)
 {
@@ -224,12 +283,17 @@ int list::FindIndex(type data)
 {
 	link cur = _head;
 	int i = 1;
-	while (cur->_data != data)
+	while (cur != NULL)
 	{
+		if (cur->_data == data)
+		{
+			return i;
+		}
 		cur = cur->_next;
 		i++;
 	}
-	return i;
+	return 0;
+	
 }
 void list::Swap(link ptr1, link ptr2)
 {

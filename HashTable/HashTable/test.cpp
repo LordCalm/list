@@ -12,7 +12,6 @@ size_t h1(char *data)
 		hash = 37 * hash + *data;
 
 	return hash;
-
 }
 size_t h2(char *data)
 {
@@ -37,17 +36,28 @@ size_t h3(char *data)
 	}
 	return hash;
 }
-int main()
+void func(hash_table *table)
 {
-	hash_table table(h3);
-	char data[1000][128];
+	char data[10000][12];
 	unsigned long long r = 0;
-	for (int i = 0; i < 1000; i++)
+	for (int i = 0; i < 10000; i++)
 	{
 		r = Random(89000000000, 89999999999);
+		///r = 5191591951;
 		sprintf(data[i], "%llu", r);
-		table.Register(data[i]);
+		table->Register(data[i]);
 	}
-	table.DumpToFile("result.txt");
+}
+int main()
+{
+	try {
+		hash_table table(h3);
+		func(&table);
+		table.DumpToFile("result.txt");
+		table.hashed[0]->PrintList();
+	}
+	catch (...){
+		cout << "Error\n";
+	}
 	return 0;
 }
