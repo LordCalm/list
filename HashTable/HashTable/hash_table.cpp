@@ -1,22 +1,26 @@
 #include <iostream>
-#include "List_cpp.h"
+#include <fstream>
+#include "HashTable.h"
 using namespace std;
 
-int main()
+void hash_table::Register(char* data)
 {
-	int M[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-	int size_M = sizeof(M) / sizeof(*M);
-	//list *L = CreateList();
-	list *L = ArrayToList(M, size_M);
-	InsertAfter(&L, 1, 1);
-	InsertAfter(&L, 1, 20);
-	InsertAfter(&L, 2, 20);
-	InsertBefore(&L, 1, 100);
-	Delete(&L, 1);
-	//DeleteList(&L);
-	//printf("%i\n", FindIndex(L, 100));
-	BubbleSort(&L);
-	//printf("%i\n", (L->head)->checksum);
-	PrintList(L, printInt);
-	return 0;
+	int x = hash_f(data) % table_size;
+	if(hashed[x]->FindString(data) == 0) hashed[x]->InsertAfter(1, data);
+	cout << data << "\n";
+}
+void hash_table::Remove(char* data)
+{
+	int x = hash_f(data) % table_size;
+	if (hashed[x]->FindString(data) != 0) hashed[x]->Delete(hashed[x]->FindIndex(data));
+}
+void hash_table::DumpToFile(const char *file)
+{
+	ofstream f;
+	f.open(file, ios::out);
+	for (int i = 0; i < table_size; i++)
+	{
+		f << hashed[i]->_size << "\n";
+	}
+	f.close();
 }

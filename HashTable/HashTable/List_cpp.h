@@ -3,7 +3,7 @@
 using namespace std;
 
 const int CAN = 16516;
-typedef int type;
+typedef char* type;
 typedef struct node *link;
 typedef struct node {
 	int can1;
@@ -81,21 +81,13 @@ list* CreateList()
 	return tmp;
 }
 
-void printFloat(link cur)
-{
-	cout << (float)cur->data;
-}
-void printInt(link cur)
-{
-	cout << (int)cur->data << " ";
-}
-void PrintList(list *list, void(*fun)(link))
+void PrintList(list *list)
 {
 	link cur = list->head;
 	while (cur)
 	{
 		OK(cur);
-		fun(cur);
+		cout << cur;
 		cur = cur->next;
 	}
 	cout << "\n";
@@ -106,16 +98,16 @@ void InsertFiled(type data)
 	cout << data << " is not inserted.\n";
 	exit(1);
 }
-void InsertAfter(list **List, int index, type data)
+void InsertAfter(list *List, int index, type data)
 {
-	ListOK(*List);
-	if ((*List)->head->data)
+	ListOK(List);
+	if ((List)->head->data)
 	{
-		if (0 < index && index <= (*List)->size)
+		if (0 < index && index <= (List)->size)
 		{
-			((*List)->size)++;
-			OK((*List)->head);
-			link cur = (*List)->head;
+			(List)->size++;
+			OK((List)->head);
+			link cur = (List)->head;
 			for (int i = 1; i < index; i++)
 			{
 				cur = cur->next;
@@ -142,41 +134,41 @@ void InsertAfter(list **List, int index, type data)
 	{
 		if (0 <= index)
 		{
-			((*List)->size)++;
+			((List)->size)++;
 			link el = CreateNode();
 			el->data = data;
 			el->checksum = Checksum(el);
-			(*List)->head = el;
-			(*List)->tail = el;
+			(List)->head = el;
+			(List)->tail = el;
 			return;
 		}
 	}
 	InsertFiled(data);
 
 }
-void InsertBefore(list **List, int index, type data)
+void InsertBefore(list *List, int index, type data)
 {
-	ListOK(*List);
+	ListOK(List);
 	if (index == 1)
 	{
-		((*List)->size)++;
-		OK((*List)->head);
-		link cur = (*List)->head;
+		((List)->size)++;
+		OK((List)->head);
+		link cur = (List)->head;
 		link el = CreateNode();
 		el->data = data;
 		el->next = cur;
 		cur->prev = el;
-		(*List)->head = el;
+		(List)->head = el;
 		cur->checksum = Checksum(cur);
 		el->checksum = Checksum(el);
 		OK(el);
 		return;
 	}
-	else if (1 < index && index <= (*List)->size)
+	else if (1 < index && index <= (List)->size)
 	{
-		((*List)->size)++;
-		OK((*List)->head);
-		link cur = (*List)->head;
+		((List)->size)++;
+		OK((List)->head);
+		link cur = (List)->head;
 		for (int i = 1; i < index; i++)
 		{
 			cur = cur->next;
@@ -204,7 +196,7 @@ list* ArrayToList(type *Array, int size)
 		list *L = CreateList();
 		for (int i = 0; i < size; i++)
 		{
-			InsertAfter(&L, i, Array[i]);
+			InsertAfter(L, i, Array[i]);
 		}
 		return L;
 	}
@@ -215,14 +207,14 @@ list* ArrayToList(type *Array, int size)
 	}
 }
 
-void Delete(list **List, int index)
+void Delete(list *List, int index)
 {
-	ListOK(*List);
-	if (0 < index && index <= (*List)->size)
+	ListOK(List);
+	if (0 < index && index <= (List)->size)
 	{
-		((*List)->size)--;
-		OK((*List)->head);
-		link cur = (*List)->head;
+		((List)->size)--;
+		OK((List)->head);
+		link cur = (List)->head;
 		int i = 1;
 		while (i < index)
 		{
@@ -239,8 +231,8 @@ void Delete(list **List, int index)
 		else
 		{
 			OK(cur->next);
-			(*List)->head = cur->next;
-			(*List)->head->checksum = Checksum((*List)->head);
+			(List)->head = cur->next;
+			(List)->head->checksum = Checksum((List)->head);
 			if (cur->next != NULL)
 			{
 				cur->next->prev = cur->prev;
@@ -248,26 +240,26 @@ void Delete(list **List, int index)
 			}
 		}
 		cur->next = cur->prev = NULL;
-		free(cur);
+		delete cur;
 		return;
 	}
 	cout << index << " is not deleted.\n";
 	exit(1);
 }
-void DeleteList(list **List)
+void DeleteList(list *List)
 {
-	if ((*List)->head != NULL)
+	if ((List)->head != NULL)
 	{
-		link tmp = (*List)->head;
+		link tmp = (List)->head;
 		link next = NULL;
 		while (tmp) {
 			next = tmp->next;
 			tmp->next = tmp->prev = NULL;
-			free(tmp);
+			delete tmp;
 			tmp = next;
 		}
-		free(*List);
-		(*List) = NULL;
+		delete List;
+		(List) = NULL;
 	}
 }
 
@@ -297,11 +289,11 @@ void Swap(link *ptr1, link *ptr2)
 	(*ptr1)->data = (*ptr2)->data;
 	(*ptr2)->data = buf;
 }
-void BubbleSort(list **list)
+void BubbleSort(list *list)
 {
 	if (list != NULL)
 	{
-		link cur = (*list)->head;
+		link cur = (list)->head;
 		int check = 1;
 		while (check != 0)
 		{
@@ -316,9 +308,9 @@ void BubbleSort(list **list)
 				cur = cur->next;
 			}
 			if (check1 == 0) check = 0;
-			cur = (*list)->head;
+			cur = (list)->head;
 		}
-		(*list)->head = cur;
+		(list)->head = cur;
 	}
 	else
 	{
