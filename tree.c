@@ -24,7 +24,7 @@ int main()
 	Insert(&root_ptr, 11);
 	Traverse(root_ptr);
 	//printf("%i\n", (Find(root_ptr, 3))->data);
-	Remove(&root_ptr, 5);
+	Remove(&root_ptr, 10);
 	printf("\n");
 	Traverse(root_ptr);
 	return 0;
@@ -85,7 +85,7 @@ node* Remove(node **root_ptr, int value)
 {
 	if (*root_ptr == NULL)
 		return *root_ptr;
-	if (value < (*root_ptr)->data)
+	else if (value < (*root_ptr)->data)
 		(*root_ptr)->left_ptr = Remove(&(*root_ptr)->left_ptr, value);
 	else if (value > (*root_ptr)->data)
 		(*root_ptr)->right_ptr = Remove(&(*root_ptr)->right_ptr, value);
@@ -94,10 +94,10 @@ node* Remove(node **root_ptr, int value)
 		(*root_ptr)->data = (Minimum((*root_ptr)->right_ptr))->data;
 		(*root_ptr)->right_ptr = Remove(&(*root_ptr)->right_ptr, (*root_ptr)->data);
 	}
-	else
+	else 
 		if ((*root_ptr)->left_ptr != NULL)
-			root_ptr = (*root_ptr)->left_ptr;
+			*root_ptr = (*root_ptr)->left_ptr;
 		else
-			root_ptr = (*root_ptr)->right_ptr;
-	return root_ptr;
+			*root_ptr = (*root_ptr)->right_ptr;
+	return *root_ptr;
 }
